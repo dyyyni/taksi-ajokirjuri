@@ -5,9 +5,11 @@ mod pdf;
 use eframe::egui;
 use eframe::{self, NativeOptions};
 use db::initialize_db;
+use chrono::{NaiveDate, Local};
 
 #[derive(Default)]
 struct MyApp {
+    date: NaiveDate,  // Add a field for the date
     matkamittarin_aloituslukema: String,
     ammattiajo: String,
     tuottamaton_ajo: String,
@@ -23,22 +25,25 @@ struct MyApp {
 }
 
 impl eframe::App for MyApp {
-
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         ui::build_ui(self, ctx);
     }
 }
 
 fn main() {
+    // Initialize the database
     if let Err(e) = initialize_db() {
         eprintln!("Failed to initialize the database: {}", e);
         return;
     }
 
     let native_options = NativeOptions::default();
-    let _ =eframe::run_native(
-        "Ajopäiväkirja",
+    let _ = eframe::run_native(
+        "My Egui App",
         native_options,
-        Box::new(|_cc| Ok(Box::new(MyApp::default()))),
+        Box::new(|_cc| Ok(Box::new(MyApp {
+            date: Local::today().naive_local(),
+            ..Default::default()
+        }))),
     );
 }

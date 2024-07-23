@@ -1,13 +1,19 @@
 use eframe::egui;
+use egui_extras::DatePickerButton;
 use crate::MyApp;
 use crate::db::{insert_entry, Entry, get_monthly_summary};
 use crate::pdf::generate_summary_pdf;
 use rusqlite::Connection;
-use chrono::Local;
+use chrono::Datelike;
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Syötä tiedot");
+
+        ui.horizontal(|ui| {
+            ui.label("Päivämäärä:");
+            ui.add(DatePickerButton::new(&mut app.date).id_source("date_picker"));
+        });
 
         ui.horizontal(|ui| {
             ui.label("Matkamittarin aloituslukema (km):");
@@ -67,7 +73,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         if ui.button("Save").clicked() {
             let conn = Connection::open("data/data.db").unwrap();
             let entry = Entry {
-                date: Local::now().format("%Y-%m-%d").to_string(),
+                date: app.date.to_string(),
                 matkamittarin_aloituslukema: app.matkamittarin_aloituslukema.parse().unwrap_or(0.0),
                 ammattiajo: app.ammattiajo.parse().unwrap_or(0.0),
                 tuottamaton_ajo: app.tuottamaton_ajo.parse().unwrap_or(0.0),
@@ -90,7 +96,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
 
         if ui.button("Generate Report").clicked() {
             let conn = Connection::open("data/data.db").unwrap();
-            let month = Local::now().format("%Y-%m").to_string();
+            let month = format!("{:04}-{:02}", app.date.year(), app.date.month());
             match get_monthly_summary(&conn, &month) {
                 Ok(summary) => {
                     generate_summary_pdf(summary);

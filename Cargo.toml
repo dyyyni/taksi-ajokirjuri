@@ -7,5 +7,6 @@ edition = "2021"
 chrono = "0.4.38"
 eframe = "0.28.1"
 egui = "0.28.1"
+egui_extras = { version = "0.28.1", features = ["chrono"] }
 printpdf = "0.7.0"
 rusqlite = "0.32.0"

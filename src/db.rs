@@ -1,5 +1,4 @@
 use rusqlite::{params, Connection, Result};
-use chrono::prelude::*;
 
 #[derive(Debug)]
 pub struct Entry {
