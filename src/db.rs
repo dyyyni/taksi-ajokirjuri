@@ -115,3 +115,27 @@ pub fn get_monthly_summary(conn: &Connection, month: &str) -> Result<(f64, f64, 
     }
     Ok(summary)
 }
+
+pub fn get_entry_by_date(conn: &Connection, date: &str) -> Result<Option<Entry>> {
+    let mut stmt = conn.prepare("SELECT date, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1")?;
+    let mut rows = stmt.query(params![date])?;
+    
+    if let Some(row) = rows.next()? {
+        Ok(Some(Entry {
+            date: row.get(0)?,
+            matkamittarin_aloituslukema: row.get(1)?,
+            ammattiajo: row.get(2)?,
+            tuottamaton_ajo: row.get(3)?,
+            yksityinen_ajo: row.get(4)?,
+            matkamittarin_loppulukema: row.get(5)?,
+            käteisajotulot: row.get(6)?,
+            pankkikorttitulot: row.get(7)?,
+            luottokorttitulot: row.get(8)?,
+            kela_suorakorvaus: row.get(9)?,
+            taksikortti: row.get(10)?,
+            laskutettavat: row.get(11)?,
+        }))
+    } else {
+        Ok(None)
+    }
+}

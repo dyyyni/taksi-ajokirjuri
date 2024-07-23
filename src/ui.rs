@@ -1,7 +1,7 @@
 use eframe::egui;
 use egui_extras::DatePickerButton;
 use crate::MyApp;
-use crate::db::{insert_entry, Entry, get_monthly_summary};
+use crate::db::{insert_entry, get_entry_by_date, Entry, get_monthly_summary};
 use crate::pdf::generate_summary_pdf;
 use rusqlite::Connection;
 use chrono::Datelike;
@@ -10,10 +10,43 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Syötä tiedot");
 
+        // Store the previous date
+        let previous_date = app.date;
+
         ui.horizontal(|ui| {
             ui.label("Päivämäärä:");
             ui.add(DatePickerButton::new(&mut app.date).id_source("date_picker"));
         });
+
+        // Check if the date has changed
+        if app.date != previous_date {
+            let conn = Connection::open("data/data.db").unwrap();
+            if let Ok(Some(entry)) = get_entry_by_date(&conn, &app.date.to_string()) {
+                app.matkamittarin_aloituslukema = entry.matkamittarin_aloituslukema.to_string();
+                app.ammattiajo = entry.ammattiajo.to_string();
+                app.tuottamaton_ajo = entry.tuottamaton_ajo.to_string();
+                app.yksityinen_ajo = entry.yksityinen_ajo.to_string();
+                app.matkamittarin_loppulukema = entry.matkamittarin_loppulukema.to_string();
+                app.käteisajotulot = entry.käteisajotulot.to_string();
+                app.pankkikorttitulot = entry.pankkikorttitulot.to_string();
+                app.luottokorttitulot = entry.luottokorttitulot.to_string();
+                app.kela_suorakorvaus = entry.kela_suorakorvaus.to_string();
+                app.taksikortti = entry.taksikortti.to_string();
+                app.laskutettavat = entry.laskutettavat.to_string();
+            } else {
+                app.matkamittarin_aloituslukema.clear();
+                app.ammattiajo.clear();
+                app.tuottamaton_ajo.clear();
+                app.yksityinen_ajo.clear();
+                app.matkamittarin_loppulukema.clear();
+                app.käteisajotulot.clear();
+                app.pankkikorttitulot.clear();
+                app.luottokorttitulot.clear();
+                app.kela_suorakorvaus.clear();
+                app.taksikortti.clear();
+                app.laskutettavat.clear();
+            }
+        }
 
         ui.horizontal(|ui| {
             ui.label("Matkamittarin aloituslukema (km):");
