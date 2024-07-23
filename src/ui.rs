@@ -4,11 +4,11 @@ use crate::MyApp;
 use crate::db::{insert_entry, get_entry_by_date, Entry, get_monthly_summary};
 use crate::pdf::generate_summary_pdf;
 use rusqlite::Connection;
-use chrono::{Local, NaiveDate, Datelike};
+use chrono::Datelike;
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
-        ui.heading("Syötä tiedot");
+        ui.heading("Valitse päivämäärä");
 
         let previous_date = app.date;
 
@@ -43,13 +43,15 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             }
         }
 
+        ui.heading("Ajokilometrit");
+
         egui::Grid::new("entry_grid")
             .num_columns(2)
             .spacing([20.0, 10.0])
             .striped(true)
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    ui.label("Mittarin aloituslukema:       "); //Backend dev doing front :D
+                    ui.label("Mittarin aloituslukema:       ");
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.label("(km)");
                     });
@@ -91,6 +93,11 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                     });
                 });
                 ui.add(egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema).desired_width(100.0));
+                ui.end_row();
+
+                ui.end_row(); // End the row before the heading
+
+                ui.heading("Ajotulojen erittely");
                 ui.end_row();
 
                 ui.horizontal(|ui| {
