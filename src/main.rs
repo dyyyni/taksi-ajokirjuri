@@ -6,10 +6,11 @@ use eframe::egui;
 use eframe::{self, NativeOptions};
 use db::initialize_db;
 use chrono::{NaiveDate, Local};
+use std::error::Error;
 
 #[derive(Default)]
 struct MyApp {
-    date: NaiveDate,  // Add a field for the date
+    date: NaiveDate,
     matkamittarin_aloituslukema: String,
     ammattiajo: String,
     tuottamaton_ajo: String,
@@ -30,20 +31,20 @@ impl eframe::App for MyApp {
     }
 }
 
-fn main() {
-    // Initialize the database
-    if let Err(e) = initialize_db() {
-        eprintln!("Failed to initialize the database: {}", e);
-        return;
-    }
+fn main() -> Result<(), Box<dyn Error>> {
+
+    initialize_db()?;
 
     let native_options = NativeOptions::default();
-    let _ = eframe::run_native(
-        "My Egui App",
+
+    eframe::run_native(
+        "Ajopäiväkirja",
         native_options,
         Box::new(|_cc| Ok(Box::new(MyApp {
-            date: Local::today().naive_local(),
+            date: Local::now().naive_local().date(),
             ..Default::default()
         }))),
-    );
+    )?;
+
+    Ok(())
 }
