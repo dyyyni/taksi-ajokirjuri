@@ -4,6 +4,7 @@ mod pdf;
 
 use eframe::egui;
 use eframe::{self, NativeOptions};
+use db::initialize_db;
 
 #[derive(Default)]
 struct MyApp {
@@ -29,6 +30,11 @@ impl eframe::App for MyApp {
 }
 
 fn main() {
+    if let Err(e) = initialize_db() {
+        eprintln!("Failed to initialize the database: {}", e);
+        return;
+    }
+
     let native_options = NativeOptions::default();
     let _ =eframe::run_native(
         "Ajopäiväkirja",

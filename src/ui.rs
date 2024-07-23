@@ -1,5 +1,9 @@
 use eframe::egui;
 use crate::MyApp;
+use crate::db::{insert_entry, Entry, get_monthly_summary};
+use crate::pdf::generate_summary_pdf;
+use rusqlite::Connection;
+use chrono::Local;
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
@@ -61,13 +65,41 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         });
 
         if ui.button("Save").clicked() {
-            // Placeholder for save logic
-            app.message = "Data saved!".to_string();
+            let conn = Connection::open("data/data.db").unwrap();
+            let entry = Entry {
+                date: Local::now().format("%Y-%m-%d").to_string(),
+                matkamittarin_aloituslukema: app.matkamittarin_aloituslukema.parse().unwrap_or(0.0),
+                ammattiajo: app.ammattiajo.parse().unwrap_or(0.0),
+                tuottamaton_ajo: app.tuottamaton_ajo.parse().unwrap_or(0.0),
+                yksityinen_ajo: app.yksityinen_ajo.parse().unwrap_or(0.0),
+                matkamittarin_loppulukema: app.matkamittarin_loppulukema.parse().unwrap_or(0.0),
+                käteisajotulot: app.käteisajotulot.parse().unwrap_or(0.0),
+                pankkikorttitulot: app.pankkikorttitulot.parse().unwrap_or(0.0),
+                luottokorttitulot: app.luottokorttitulot.parse().unwrap_or(0.0),
+                kela_suorakorvaus: app.kela_suorakorvaus.parse().unwrap_or(0.0),
+                taksikortti: app.taksikortti.parse().unwrap_or(0.0),
+                laskutettavat: app.laskutettavat.parse().unwrap_or(0.0),
+            };
+
+            if let Err(e) = insert_entry(&conn, &entry) {
+                app.message = format!("Failed to save data: {}", e);
+            } else {
+                app.message = "Data saved!".to_string();
+            }
         }
 
         if ui.button("Generate Report").clicked() {
-            // Placeholder for report generation logic
-            app.message = "Report generated!".to_string();
+            let conn = Connection::open("data/data.db").unwrap();
+            let month = Local::now().format("%Y-%m").to_string();
+            match get_monthly_summary(&conn, &month) {
+                Ok(summary) => {
+                    generate_summary_pdf(summary);
+                    app.message = "Report generated!".to_string();
+                }
+                Err(e) => {
+                    app.message = format!("Failed to generate report: {}", e);
+                }
+            }
         }
 
         ui.label(&app.message);
