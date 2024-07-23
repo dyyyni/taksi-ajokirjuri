@@ -1,0 +1,11 @@
+[package]
+name = "taksi-tilikirja"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.38"
+eframe = "0.28.1"
+egui = "0.28.1"
+printpdf = "0.7.0"
+rusqlite = "0.32.0"
