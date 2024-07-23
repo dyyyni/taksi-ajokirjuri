@@ -12,7 +12,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
 
         let previous_date = app.date;
 
-        ui.add(DatePickerButton::new(&mut app.date).id_source("date_picker"));
+        ui.add_sized([200.0, 40.0], DatePickerButton::new(&mut app.date).id_source("date_picker")); 
 
         if app.date != previous_date {
             let conn = Connection::open("data/data.db").unwrap();
@@ -141,7 +141,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 }
             }
 
-            if ui.button("Luo Raportti").clicked() {
+            if ui.button("Luo raportti").clicked() {
                 let conn = Connection::open("data/data.db").unwrap();
                 let month = format!("{:04}-{:02}", app.date.year(), app.date.month());
                 match get_monthly_summary(&conn, &month) {
