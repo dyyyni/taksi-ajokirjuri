@@ -68,7 +68,8 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
     Ok(())
 }
 
-pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) -> Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
+pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
+    Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
     let mut stmt = conn.prepare(
         "SELECT 
             SUM(matkamittarin_aloituslukema), 
@@ -85,7 +86,8 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) -> Result<
          FROM entries 
          WHERE date LIKE ?1 AND car = ?2"
     )?;
-    let rows = stmt.query_map(params![format!("{}%", month), car], |row| {
+    let rows = 
+        stmt.query_map(params![format!("{}%", month), car], |row| {
         Ok((
             row.get::<_, Option<f64>>(0)?, 
             row.get::<_, Option<f64>>(1)?, 
@@ -103,7 +105,12 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) -> Result<
 
     let mut summary = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     for row in rows {
-        let (matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat): (Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>) = row?;
+        let (matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo,
+            yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot,
+            pankkikorttitulot, luottokorttitulot, kela_suorakorvaus,
+            taksikortti, laskutettavat):
+            (Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>,
+                 Option<f64>, Option<f64>, Option<f64>, Option<f64>) = row?;
         summary.0 += matkamittarin_aloituslukema.unwrap_or(0.0);
         summary.1 += ammattiajo.unwrap_or(0.0);
         summary.2 += tuottamaton_ajo.unwrap_or(0.0);
@@ -120,7 +127,8 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) -> Result<
 }
 
 pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Result<Option<Entry>, rusqlite::Error> {
-    let mut stmt = conn.prepare("SELECT date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1 AND car = ?2")?;
+    let mut stmt =
+    conn.prepare("SELECT date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1 AND car = ?2")?;
     let mut rows = stmt.query(rusqlite::params![date, car])?;
 
     if let Some(row) = rows.next()? {
