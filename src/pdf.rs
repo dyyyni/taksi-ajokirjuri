@@ -8,11 +8,14 @@ pub fn generate_summary_pdf(
     car: &str,
 ) {
     let (
-        total_aloituslukema, total_ammattiajo, total_tuottamaton_ajo, total_yksityinen_ajo, total_loppulukema,
-        total_käteisajotulot, total_pankkikorttitulot, total_luottokorttitulot, total_kela_suorakorvaus, total_taksikortti, total_laskutettavat
+        total_aloituslukema, total_ammattiajo, total_tuottamaton_ajo,
+        total_yksityinen_ajo, total_loppulukema,
+        total_käteisajotulot, total_pankkikorttitulot, total_luottokorttitulot,
+        total_kela_suorakorvaus, total_taksikortti, total_laskutettavat
     ) = summary;
 
-    let (doc, page1, layer1) = PdfDocument::new("Summary Report", Mm(210.0), Mm(297.0), "Layer 1");
+    let (doc, page1, layer1) =
+        PdfDocument::new("Summary Report", Mm(210.0), Mm(297.0), "Layer 1");
     let current_layer = doc.get_page(page1).get_layer(layer1);
 
     let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
@@ -23,6 +26,7 @@ pub fn generate_summary_pdf(
     let mut y_position = Mm(270.0);
 
     current_layer.use_text("Kuukausikohtainen yhteenveto", font_h1, Mm(15.0), y_position, &font_bold);
+    draw_underline(&current_layer, Mm(15.0), y_position - Mm(1.5), Mm(105.0));
     y_position -= Mm(10.0);
 
     current_layer.use_text("Kuukausi:", font_size, Mm(15.0), y_position, &font);
@@ -82,4 +86,13 @@ pub fn generate_summary_pdf(
     if let Err(e) = doc.save(&mut output_writer) {
         eprintln!("Failed to save PDF: {}", e);
     }
+}
+
+fn draw_underline(layer: &PdfLayerReference, x: Mm, y: Mm, width: Mm) {
+    let line = Line {
+        points: vec![(Point::new(x, y), false), (Point::new(x + width, y), false)],
+        is_closed: false,
+    };
+
+    layer.add_line(line);
 }
