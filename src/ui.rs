@@ -27,7 +27,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 ui.selectable_value(&mut app.car, CAR2.to_string(), CAR2);
                 ui.selectable_value(&mut app.car, CAR3.to_string(), CAR3);
             });
-        
+
         ui.add_space(15.0);
 
         if app.date != previous_date || app.car != previous_car {
@@ -59,13 +59,11 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             }
         }
 
-
         egui::Grid::new("entry_grid")
             .num_columns(3)
             .spacing([20.0, 10.0])
             .striped(true)
             .show(ui, |ui| {
-                
                 ui.heading("Ajokilometrit");
                 ui.end_row();
 
@@ -159,7 +157,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             if ui.button("Luo raportti").clicked() {
                 let conn = Connection::open("data/data.db").unwrap();
                 let month = format!("{:04}-{:02}", app.date.year(), app.date.month());
-                match get_monthly_summary(&conn, &month) {
+                match get_monthly_summary(&conn, &month, &app.car) {
                     Ok(summary) => {
                         generate_summary_pdf(summary);
                         app.message = "Report generated!".to_string();

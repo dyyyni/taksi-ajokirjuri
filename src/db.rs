@@ -68,7 +68,7 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
     Ok(())
 }
 
-pub fn get_monthly_summary(conn: &Connection, month: &str) -> Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
+pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) -> Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
     let mut stmt = conn.prepare(
         "SELECT 
             SUM(matkamittarin_aloituslukema), 
@@ -83,9 +83,9 @@ pub fn get_monthly_summary(conn: &Connection, month: &str) -> Result<(f64, f64, 
             SUM(taksikortti), 
             SUM(laskutettavat) 
          FROM entries 
-         WHERE date LIKE ?1"
+         WHERE date LIKE ?1 AND car = ?2"
     )?;
-    let rows = stmt.query_map(params![format!("{}%", month)], |row| {
+    let rows = stmt.query_map(params![format!("{}%", month), car], |row| {
         Ok((
             row.get::<_, Option<f64>>(0)?, 
             row.get::<_, Option<f64>>(1)?, 
