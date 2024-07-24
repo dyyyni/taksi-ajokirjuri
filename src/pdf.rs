@@ -25,24 +25,28 @@ pub fn generate_summary_pdf(
     current_layer.use_text("Kuukausikohtainen yhteenveto", font_h1, Mm(15.0), y_position, &font_bold);
     y_position -= Mm(10.0);
 
-    current_layer.use_text(format!("Kuukausi:   {}", year_month), font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text("Kuukausi:", font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text(year_month, font_size, Mm(40.0), y_position, &font);
     y_position -= Mm(7.5);
-    current_layer.use_text(format!("Auto:          {}", car), font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text("Auto:", font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text(car, font_size, Mm(40.0), y_position, &font);
     y_position -= Mm(15.0);
 
     current_layer.use_text("Ajokilometrit", font_h1, Mm(15.0), y_position, &font_bold);
     y_position -= Mm(15.0);
 
     let ajokilometrit_data = vec![
-        ("Mittarin aloituslukema", total_aloituslukema, "km"),
-        ("Ammattiajo", total_ammattiajo, "km"),
-        ("Tuottamaton ajo", total_tuottamaton_ajo, "km"),
-        ("Yksityinen ajo", total_yksityinen_ajo, "km"),
-        ("Mittarin loppulukema", total_loppulukema, "km"),
+        ("Mittarin aloituslukema:", total_aloituslukema, "km"),
+        ("Ammattiajo:", total_ammattiajo, "km"),
+        ("Tuottamaton ajo:", total_tuottamaton_ajo, "km"),
+        ("Yksityinen ajo:", total_yksityinen_ajo, "km"),
+        ("Mittarin loppulukema:", total_loppulukema, "km"),
     ];
 
     for (label, value, unit) in ajokilometrit_data {
-        current_layer.use_text(format!("{}: {:.2} {}", label, value, unit), font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(label, font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(format!("{}", value), font_size, Mm(80.0), y_position, &font);
+        current_layer.use_text(unit, font_size, Mm(100.0), y_position, &font);
         y_position -= Mm(10.0);
     }
 
@@ -51,16 +55,18 @@ pub fn generate_summary_pdf(
     y_position -= Mm(15.0);
 
     let ajotulojen_erittely_data = vec![
-        ("Käteisajotulot", total_käteisajotulot, "€"),
-        ("Pankkikorttitulot", total_pankkikorttitulot, "€"),
-        ("Luottokorttitulot", total_luottokorttitulot, "€"),
-        ("Kela suorakorvaus", total_kela_suorakorvaus, "€"),
-        ("Taksikortti", total_taksikortti, "€"),
-        ("Laskutettavat", total_laskutettavat, "€"),
+        ("Käteisajotulot:", total_käteisajotulot, "€"),
+        ("Pankkikorttitulot:", total_pankkikorttitulot, "€"),
+        ("Luottokorttitulot:", total_luottokorttitulot, "€"),
+        ("Kela suorakorvaus:", total_kela_suorakorvaus, "€"),
+        ("Taksikortti:", total_taksikortti, "€"),
+        ("Laskutettavat:", total_laskutettavat, "€"),
     ];
 
     for (label, value, unit) in ajotulojen_erittely_data {
-        current_layer.use_text(format!("{}: {:.2} {}", label, value, unit), font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(label, font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(format!("{:.2}", value), font_size, Mm(80.0), y_position, &font);
+        current_layer.use_text(unit, font_size, Mm(100.0), y_position, &font);
         y_position -= Mm(10.0);
     }
 
