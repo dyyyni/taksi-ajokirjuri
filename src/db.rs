@@ -48,7 +48,22 @@ fn create_table(conn: &Connection) -> Result<()> {
 
 pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Error> {
     conn.execute(
-        "INSERT INTO entries (date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+        "INSERT INTO entries (
+            date,
+            car,
+            matkamittarin_aloituslukema,
+            ammattiajo,
+            tuottamaton_ajo,
+            yksityinen_ajo,
+            matkamittarin_loppulukema,
+            käteisajotulot,
+            pankkikorttitulot,
+            luottokorttitulot,
+            kela_suorakorvaus,
+            taksikortti,
+            laskutettavat
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
         rusqlite::params![
             entry.date,
             entry.car,
@@ -128,7 +143,23 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
 
 pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Result<Option<Entry>, rusqlite::Error> {
     let mut stmt =
-    conn.prepare("SELECT date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1 AND car = ?2")?;
+    conn.prepare(
+        "SELECT
+            date,
+            car,
+            matkamittarin_aloituslukema,
+            ammattiajo,
+            tuottamaton_ajo,
+            yksityinen_ajo,
+            matkamittarin_loppulukema,
+            käteisajotulot,
+            pankkikorttitulot,
+            luottokorttitulot,
+            kela_suorakorvaus,
+            taksikortti,
+            laskutettavat
+            FROM entries
+            WHERE date = ?1 AND car = ?2")?;
     let mut rows = stmt.query(rusqlite::params![date, car])?;
 
     if let Some(row) = rows.next()? {
