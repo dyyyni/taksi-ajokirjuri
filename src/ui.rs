@@ -1,7 +1,7 @@
 use eframe::egui;
 use egui_extras::DatePickerButton;
 use crate::MyApp;
-use crate::db::{insert_entry, get_entry_by_date, Entry, get_monthly_summary};
+use crate::db::{insert_entry, get_entry_by_date_and_car, Entry, get_monthly_summary};
 use crate::pdf::generate_summary_pdf;
 use rusqlite::Connection;
 use chrono::Datelike;
@@ -11,12 +11,26 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         ui.heading("Valitse päivämäärä");
 
         let previous_date = app.date;
+        let previous_car = app.car.clone();
 
-        ui.add_sized([200.0, 40.0], DatePickerButton::new(&mut app.date).id_source("date_picker")); 
+        ui.add_sized([200.0, 40.0], DatePickerButton::new(&mut app.date).id_source("date_picker"));
 
-        if app.date != previous_date {
+        ui.add_space(15.0);
+
+        ui.heading("Valitse auto");
+        egui::ComboBox::from_label("")
+            .selected_text(&app.car)
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut app.car, "MOH-185".to_string(), "MOH-185");
+                ui.selectable_value(&mut app.car, "KTU-152".to_string(), "KTU-152");
+                ui.selectable_value(&mut app.car, "RUO-240".to_string(), "RUO-240");
+            });
+        
+        ui.add_space(15.0);
+
+        if app.date != previous_date || app.car != previous_car {
             let conn = Connection::open("data/data.db").unwrap();
-            if let Ok(Some(entry)) = get_entry_by_date(&conn, &app.date.to_string()) {
+            if let Ok(Some(entry)) = get_entry_by_date_and_car(&conn, &app.date.to_string(), &app.car) {
                 app.matkamittarin_aloituslukema = entry.matkamittarin_aloituslukema.to_string();
                 app.ammattiajo = entry.ammattiajo.to_string();
                 app.tuottamaton_ajo = entry.tuottamaton_ajo.to_string();
@@ -43,14 +57,13 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             }
         }
 
-        ui.add_space(20.0);
 
         egui::Grid::new("entry_grid")
             .num_columns(3)
             .spacing([20.0, 10.0])
             .striped(true)
             .show(ui, |ui| {
-
+                
                 ui.heading("Ajokilometrit");
                 ui.end_row();
 
@@ -78,7 +91,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema));
                 ui.label("km");
                 ui.end_row();
-
 
                 ui.heading("Ajotulojen erittely");
                 ui.end_row();
@@ -113,7 +125,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 ui.label("€");
                 ui.end_row();
             });
-        
+
         ui.add_space(20.0);
 
         ui.horizontal(|ui| {
@@ -121,6 +133,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 let conn = Connection::open("data/data.db").unwrap();
                 let entry = Entry {
                     date: app.date.to_string(),
+                    car: app.car.clone(),
                     matkamittarin_aloituslukema: app.matkamittarin_aloituslukema.parse().unwrap_or(0.0),
                     ammattiajo: app.ammattiajo.parse().unwrap_or(0.0),
                     tuottamaton_ajo: app.tuottamaton_ajo.parse().unwrap_or(0.0),

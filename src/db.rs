@@ -3,6 +3,7 @@ use rusqlite::{params, Connection, Result};
 #[derive(Debug)]
 pub struct Entry {
     pub date: String,
+    pub car: String,
     pub matkamittarin_aloituslukema: f64,
     pub ammattiajo: f64,
     pub tuottamaton_ajo: f64,
@@ -25,30 +26,32 @@ pub fn initialize_db() -> Result<()> {
 fn create_table(conn: &Connection) -> Result<()> {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS entries (
-                  id                      INTEGER PRIMARY KEY,
-                  date                    TEXT NOT NULL,
-                  matkamittarin_aloituslukema REAL NOT NULL,
-                  ammattiajo              REAL NOT NULL,
-                  tuottamaton_ajo         REAL NOT NULL,
-                  yksityinen_ajo          REAL NOT NULL,
-                  matkamittarin_loppulukema REAL NOT NULL,
-                  käteisajotulot          REAL NOT NULL,
-                  pankkikorttitulot       REAL NOT NULL,
-                  luottokorttitulot       REAL NOT NULL,
-                  kela_suorakorvaus       REAL NOT NULL,
-                  taksikortti             REAL NOT NULL,
-                  laskutettavat           REAL NOT NULL
-                  )",
+            id INTEGER PRIMARY KEY,
+            date TEXT NOT NULL,
+            car TEXT NOT NULL,
+            matkamittarin_aloituslukema REAL,
+            ammattiajo REAL,
+            tuottamaton_ajo REAL,
+            yksityinen_ajo REAL,
+            matkamittarin_loppulukema REAL,
+            käteisajotulot REAL,
+            pankkikorttitulot REAL,
+            luottokorttitulot REAL,
+            kela_suorakorvaus REAL,
+            taksikortti REAL,
+            laskutettavat REAL
+        )",
         [],
-    )?;
+    ).unwrap();
     Ok(())
 }
 
-pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<()> {
+pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Error> {
     conn.execute(
-        "INSERT INTO entries (date, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
-        params![
+        "INSERT INTO entries (date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+        rusqlite::params![
             entry.date,
+            entry.car,
             entry.matkamittarin_aloituslukema,
             entry.ammattiajo,
             entry.tuottamaton_ajo,
@@ -116,24 +119,25 @@ pub fn get_monthly_summary(conn: &Connection, month: &str) -> Result<(f64, f64, 
     Ok(summary)
 }
 
-pub fn get_entry_by_date(conn: &Connection, date: &str) -> Result<Option<Entry>> {
-    let mut stmt = conn.prepare("SELECT date, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1")?;
-    let mut rows = stmt.query(params![date])?;
-    
+pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Result<Option<Entry>, rusqlite::Error> {
+    let mut stmt = conn.prepare("SELECT date, car, matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo, yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot, pankkikorttitulot, luottokorttitulot, kela_suorakorvaus, taksikortti, laskutettavat FROM entries WHERE date = ?1 AND car = ?2")?;
+    let mut rows = stmt.query(rusqlite::params![date, car])?;
+
     if let Some(row) = rows.next()? {
         Ok(Some(Entry {
             date: row.get(0)?,
-            matkamittarin_aloituslukema: row.get(1)?,
-            ammattiajo: row.get(2)?,
-            tuottamaton_ajo: row.get(3)?,
-            yksityinen_ajo: row.get(4)?,
-            matkamittarin_loppulukema: row.get(5)?,
-            käteisajotulot: row.get(6)?,
-            pankkikorttitulot: row.get(7)?,
-            luottokorttitulot: row.get(8)?,
-            kela_suorakorvaus: row.get(9)?,
-            taksikortti: row.get(10)?,
-            laskutettavat: row.get(11)?,
+            car: row.get(1)?,
+            matkamittarin_aloituslukema: row.get(2)?,
+            ammattiajo: row.get(3)?,
+            tuottamaton_ajo: row.get(4)?,
+            yksityinen_ajo: row.get(5)?,
+            matkamittarin_loppulukema: row.get(6)?,
+            käteisajotulot: row.get(7)?,
+            pankkikorttitulot: row.get(8)?,
+            luottokorttitulot: row.get(9)?,
+            kela_suorakorvaus: row.get(10)?,
+            taksikortti: row.get(11)?,
+            laskutettavat: row.get(12)?,
         }))
     } else {
         Ok(None)

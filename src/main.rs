@@ -4,13 +4,13 @@ mod pdf;
 
 use eframe::egui;
 use eframe::{self, NativeOptions};
-use db::initialize_db;
 use chrono::{NaiveDate, Local};
 use std::error::Error;
 
 #[derive(Default)]
 struct MyApp {
     date: NaiveDate,
+    car: String,
     matkamittarin_aloituslukema: String,
     ammattiajo: String,
     tuottamaton_ajo: String,
@@ -25,6 +25,16 @@ struct MyApp {
     message: String,
 }
 
+impl MyApp {
+    fn new() -> Self {
+        Self {
+            date: Local::now().naive_local().date(),
+            car: "MOH-185".to_string(),
+            ..Default::default()
+        }
+    }
+}
+
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         ui::build_ui(self, ctx);
@@ -32,18 +42,13 @@ impl eframe::App for MyApp {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-
-    initialize_db()?;
-
+    db::initialize_db()?;
     let native_options = NativeOptions::default();
 
     eframe::run_native(
         "Ajopäiväkirja",
         native_options,
-        Box::new(|_cc| Ok(Box::new(MyApp {
-            date: Local::now().naive_local().date(),
-            ..Default::default()
-        }))),
+        Box::new(|_cc| Ok(Box::new(MyApp::new()))),
     )?;
 
     Ok(())
