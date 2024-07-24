@@ -1,7 +1,9 @@
 mod db;
 mod ui;
 mod pdf;
+mod config;
 
+use config::CAR1;
 use eframe::egui;
 use eframe::{self, NativeOptions};
 use chrono::{NaiveDate, Local};
@@ -29,7 +31,7 @@ impl MyApp {
     fn new() -> Self {
         Self {
             date: Local::now().naive_local().date(),
-            car: "MOH-185".to_string(),
+            car: CAR1.to_string(),
             ..Default::default()
         }
     }

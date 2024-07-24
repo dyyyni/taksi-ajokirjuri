@@ -1,10 +1,12 @@
 use eframe::egui;
 use egui_extras::DatePickerButton;
+use rusqlite::Connection;
+use chrono::Datelike;
+
 use crate::MyApp;
 use crate::db::{insert_entry, get_entry_by_date_and_car, Entry, get_monthly_summary};
 use crate::pdf::generate_summary_pdf;
-use rusqlite::Connection;
-use chrono::Datelike;
+use crate::config::{CAR1, CAR2, CAR3};
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
@@ -21,9 +23,9 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         egui::ComboBox::from_label("")
             .selected_text(&app.car)
             .show_ui(ui, |ui| {
-                ui.selectable_value(&mut app.car, "MOH-185".to_string(), "MOH-185");
-                ui.selectable_value(&mut app.car, "KTU-152".to_string(), "KTU-152");
-                ui.selectable_value(&mut app.car, "RUO-240".to_string(), "RUO-240");
+                ui.selectable_value(&mut app.car, CAR1.to_string(), CAR1);
+                ui.selectable_value(&mut app.car, CAR2.to_string(), CAR2);
+                ui.selectable_value(&mut app.car, CAR3.to_string(), CAR3);
             });
         
         ui.add_space(15.0);
