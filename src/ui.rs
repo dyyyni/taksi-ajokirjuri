@@ -183,7 +183,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 let year_month = format!("{:04}-{:02}", app.date.year(), app.date.month());
                 match get_monthly_summary(&conn, &year_month, &app.car) {
                     Ok(summary) => {
-                        generate_summary_pdf(summary);
+                        generate_summary_pdf(summary, &year_month, &app.car);
                         app.message = "Report generated!".to_string();
                     }
                     Err(e) => {
