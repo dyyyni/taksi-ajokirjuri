@@ -45,16 +45,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 app.taksikortti = entry.taksikortti.to_string();
                 app.laskutettavat = entry.laskutettavat.to_string();
             } else {
-                app.matkamittarin_aloituslukema.clear();
-                app.ammattiajo.clear();
-                app.tuottamaton_ajo.clear();
-                app.yksityinen_ajo.clear();
-                app.matkamittarin_loppulukema.clear();
-                app.käteisajotulot.clear();
-                app.pankkikorttitulot.clear();
-                app.kela_suorakorvaus.clear();
-                app.taksikortti.clear();
-                app.laskutettavat.clear();
+                clear_ui_entries(app);
             }
         }
 
@@ -184,8 +175,25 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             if ui.button("Luo päiväraportti").clicked() {
                 crate::pdf::generate_daily_summary_pdf(&app);
             }
+
+            if ui.button("Tyhjennä kentät").clicked() {
+                clear_ui_entries(app);
+            }
         });
 
         ui.label(&app.message);
     });
 }
+
+fn clear_ui_entries(app: &mut MyApp) {
+    app.matkamittarin_aloituslukema.clear();
+    app.ammattiajo.clear();
+    app.tuottamaton_ajo.clear();
+    app.yksityinen_ajo.clear();
+    app.matkamittarin_loppulukema.clear();
+    app.käteisajotulot.clear();
+    app.pankkikorttitulot.clear();
+    app.kela_suorakorvaus.clear();
+    app.taksikortti.clear();
+    app.laskutettavat.clear(); 
+} 
