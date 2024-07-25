@@ -5,14 +5,14 @@ use std::io::BufWriter;
 use crate::MyApp;
 
 pub fn generate_monthly_summary_pdf(
-    summary: (f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64),
+    summary: (f64, f64, f64, f64, f64, f64, f64, f64, f64, f64),
     year_month: &str,
     car: &str,
 ) {
     let (
         total_aloituslukema, total_ammattiajo, total_tuottamaton_ajo,
         total_yksityinen_ajo, total_loppulukema,
-        total_käteisajotulot, total_pankkikorttitulot, total_luottokorttitulot,
+        total_käteisajotulot, total_pankkikorttitulot,
         total_kela_suorakorvaus, total_taksikortti, total_laskutettavat
     ) = summary;
 
@@ -63,7 +63,6 @@ pub fn generate_monthly_summary_pdf(
     let ajotulojen_erittely_data = vec![
         ("Käteisajotulot:", total_käteisajotulot, "€"),
         ("Pankkikorttitulot:", total_pankkikorttitulot, "€"),
-        ("Luottokorttitulot:", total_luottokorttitulot, "€"),
         ("Kela suorakorvaus:", total_kela_suorakorvaus, "€"),
         ("Taksikortti:", total_taksikortti, "€"),
         ("Laskutettavat:", total_laskutettavat, "€"),

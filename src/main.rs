@@ -20,7 +20,6 @@ struct MyApp {
     matkamittarin_loppulukema: String,
     käteisajotulot: String,
     pankkikorttitulot: String,
-    luottokorttitulot: String,
     kela_suorakorvaus: String,
     taksikortti: String,
     laskutettavat: String,

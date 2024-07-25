@@ -11,7 +11,6 @@ pub struct Entry {
     pub matkamittarin_loppulukema: f64,
     pub käteisajotulot: f64,
     pub pankkikorttitulot: f64,
-    pub luottokorttitulot: f64,
     pub kela_suorakorvaus: f64,
     pub taksikortti: f64,
     pub laskutettavat: f64,
@@ -36,7 +35,6 @@ fn create_table(conn: &Connection) -> Result<()> {
             matkamittarin_loppulukema REAL,
             käteisajotulot REAL,
             pankkikorttitulot REAL,
-            luottokorttitulot REAL,
             kela_suorakorvaus REAL,
             taksikortti REAL,
             laskutettavat REAL
@@ -58,7 +56,6 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
             matkamittarin_loppulukema,
             käteisajotulot,
             pankkikorttitulot,
-            luottokorttitulot,
             kela_suorakorvaus,
             taksikortti,
             laskutettavat
@@ -74,7 +71,6 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
             entry.matkamittarin_loppulukema,
             entry.käteisajotulot,
             entry.pankkikorttitulot,
-            entry.luottokorttitulot,
             entry.kela_suorakorvaus,
             entry.taksikortti,
             entry.laskutettavat,
@@ -84,7 +80,7 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
 }
 
 pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
-    Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
+    Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
     let mut stmt = conn.prepare(
         "SELECT 
             SUM(matkamittarin_aloituslukema), 
@@ -94,7 +90,6 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
             SUM(matkamittarin_loppulukema),
             SUM(käteisajotulot), 
             SUM(pankkikorttitulot), 
-            SUM(luottokorttitulot), 
             SUM(kela_suorakorvaus), 
             SUM(taksikortti), 
             SUM(laskutettavat) 
@@ -114,18 +109,17 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
             row.get::<_, Option<f64>>(7)?, 
             row.get::<_, Option<f64>>(8)?, 
             row.get::<_, Option<f64>>(9)?,
-            row.get::<_, Option<f64>>(10)?
         ))
     })?;
 
-    let mut summary = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    let mut summary = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     for row in rows {
         let (matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo,
             yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot,
-            pankkikorttitulot, luottokorttitulot, kela_suorakorvaus,
+            pankkikorttitulot, kela_suorakorvaus,
             taksikortti, laskutettavat):
             (Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>,
-                 Option<f64>, Option<f64>, Option<f64>, Option<f64>) = row?;
+                 Option<f64>, Option<f64>, Option<f64>) = row?;
         summary.0 += matkamittarin_aloituslukema.unwrap_or(0.0);
         summary.1 += ammattiajo.unwrap_or(0.0);
         summary.2 += tuottamaton_ajo.unwrap_or(0.0);
@@ -133,10 +127,9 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
         summary.4 += matkamittarin_loppulukema.unwrap_or(0.0);
         summary.5 += käteisajotulot.unwrap_or(0.0);
         summary.6 += pankkikorttitulot.unwrap_or(0.0);
-        summary.7 += luottokorttitulot.unwrap_or(0.0);
-        summary.8 += kela_suorakorvaus.unwrap_or(0.0);
-        summary.9 += taksikortti.unwrap_or(0.0);
-        summary.10 += laskutettavat.unwrap_or(0.0);
+        summary.7 += kela_suorakorvaus.unwrap_or(0.0);
+        summary.8 += taksikortti.unwrap_or(0.0);
+        summary.9 += laskutettavat.unwrap_or(0.0);
     }
     Ok(summary)
 }
@@ -154,7 +147,6 @@ pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Re
             matkamittarin_loppulukema,
             käteisajotulot,
             pankkikorttitulot,
-            luottokorttitulot,
             kela_suorakorvaus,
             taksikortti,
             laskutettavat
@@ -173,10 +165,9 @@ pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Re
             matkamittarin_loppulukema: row.get(6)?,
             käteisajotulot: row.get(7)?,
             pankkikorttitulot: row.get(8)?,
-            luottokorttitulot: row.get(9)?,
-            kela_suorakorvaus: row.get(10)?,
-            taksikortti: row.get(11)?,
-            laskutettavat: row.get(12)?,
+            kela_suorakorvaus: row.get(9)?,
+            taksikortti: row.get(10)?,
+            laskutettavat: row.get(11)?,
         }))
     } else {
         Ok(None)

@@ -42,7 +42,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 app.matkamittarin_loppulukema = entry.matkamittarin_loppulukema.to_string();
                 app.käteisajotulot = entry.käteisajotulot.to_string();
                 app.pankkikorttitulot = entry.pankkikorttitulot.to_string();
-                app.luottokorttitulot = entry.luottokorttitulot.to_string();
                 app.kela_suorakorvaus = entry.kela_suorakorvaus.to_string();
                 app.taksikortti = entry.taksikortti.to_string();
                 app.laskutettavat = entry.laskutettavat.to_string();
@@ -54,7 +53,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 app.matkamittarin_loppulukema.clear();
                 app.käteisajotulot.clear();
                 app.pankkikorttitulot.clear();
-                app.luottokorttitulot.clear();
                 app.kela_suorakorvaus.clear();
                 app.taksikortti.clear();
                 app.laskutettavat.clear();
@@ -121,13 +119,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 ui.label("€");
                 ui.end_row();
 
-                ui.label("Luottokorttitulot:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.luottokorttitulot));
-                ui.label("€");
-                ui.end_row();
-
                 ui.label("Kela suorakorvaus:");
                 ui.add_sized(
                     [200.0, 20.0],
@@ -165,7 +156,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                     matkamittarin_loppulukema: app.matkamittarin_loppulukema.parse().unwrap_or(0.0),
                     käteisajotulot: app.käteisajotulot.parse().unwrap_or(0.0),
                     pankkikorttitulot: app.pankkikorttitulot.parse().unwrap_or(0.0),
-                    luottokorttitulot: app.luottokorttitulot.parse().unwrap_or(0.0),
                     kela_suorakorvaus: app.kela_suorakorvaus.parse().unwrap_or(0.0),
                     taksikortti: app.taksikortti.parse().unwrap_or(0.0),
                     laskutettavat: app.laskutettavat.parse().unwrap_or(0.0),
