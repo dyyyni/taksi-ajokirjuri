@@ -5,7 +5,7 @@ use chrono::Datelike;
 
 use crate::MyApp;
 use crate::db::{insert_entry, get_entry_by_date_and_car, Entry, get_monthly_summary};
-use crate::pdf::generate_summary_pdf;
+use crate::pdf::{generate_monthly_summary_pdf, generate_daily_summary_pdf};
 use crate::config::{CAR1, CAR2, CAR3};
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
@@ -178,18 +178,22 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 }
             }
 
-            if ui.button("Luo raportti").clicked() {
+            if ui.button("Luo kuukausiraportti").clicked() {
                 let conn = Connection::open("data/data.db").unwrap();
                 let year_month = format!("{:04}-{:02}", app.date.year(), app.date.month());
                 match get_monthly_summary(&conn, &year_month, &app.car) {
                     Ok(summary) => {
-                        generate_summary_pdf(summary, &year_month, &app.car);
+                        generate_monthly_summary_pdf(summary, &year_month, &app.car);
                         app.message = "Report generated!".to_string();
                     }
                     Err(e) => {
                         app.message = format!("Failed to generate report: {}", e);
                     }
                 }
+            }
+
+            if ui.button("Luo päiväraportti").clicked() {
+                generate_daily_summary_pdf(&app);
             }
         });
 
