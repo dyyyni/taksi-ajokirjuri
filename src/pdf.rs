@@ -137,6 +137,25 @@ pub fn generate_daily_summary_pdf(app: &MyApp) {
         current_layer.use_text(unit, font_size, Mm(100.0), y_position, &font);
         y_position -= Mm(10.0);
     }
+
+    y_position -= Mm(10.0);
+    current_layer.use_text("Ajotulojen erittely", font_h1, Mm(15.0), y_position, &font_bold);
+    y_position -= Mm(15.0);
+
+    let ajotulojen_erittely_data = vec![
+        ("Käteisajotulot:", &app.käteisajotulot, "€"),
+        ("Pankkikorttitulot:", &app.pankkikorttitulot, "€"),
+        ("Kela suorakorvaus:", &app.kela_suorakorvaus, "€"),
+        ("Taksikortti:", &app.taksikortti, "€"),
+        ("Laskutettavat:", &app.laskutettavat, "€"),
+    ];
+
+    for (label, value, unit) in ajotulojen_erittely_data {
+        current_layer.use_text(label, font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(format!("{:.2}", value), font_size, Mm(80.0), y_position, &font);
+        current_layer.use_text(unit, font_size, Mm(100.0), y_position, &font);
+        y_position -= Mm(10.0);
+    }
     
     let output_file = match File::create("daily_report.pdf") {
         Ok(file) => file,
