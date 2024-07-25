@@ -107,18 +107,26 @@ pub fn generate_daily_summary_pdf(app: &MyApp) {
     y_position -= Mm(10.0);
 
     let mittarin_loppulukema =
-     app.matkamittarin_aloituslukema.parse::<f64>().unwrap_or(0.0)
+     (app.matkamittarin_aloituslukema.parse::<f64>().unwrap_or(0.0)
      + app.ammattiajo.parse::<f64>().unwrap_or(0.0)
      + app.tuottamaton_ajo.parse::<f64>().unwrap_or(0.0) 
-     + app.yksityinen_ajo.parse::<f64>().unwrap_or(0.0);
+     + app.yksityinen_ajo.parse::<f64>().unwrap_or(0.0))
+     .to_string();
     
     let ajokilometrit_data = vec![
         ("Mittarin aloituslukema:", &app.matkamittarin_aloituslukema, "km"),
         ("Ammattiajo:", &app.ammattiajo, "km"),
         ("Tuottamaton ajo:", &app.tuottamaton_ajo, "km"),
         ("Yksityinen ajo:", &app.yksityinen_ajo, "km"),
-        ("Mittarin loppulukema:", &mittarin_loppulukema.to_string(), "km"),
+        ("Mittarin loppulukema:", &mittarin_loppulukema, "km"),
     ];
+
+    for (label, value, unit) in ajokilometrit_data {
+        current_layer.use_text(label, font_size, Mm(15.0), y_position, &font);
+        current_layer.use_text(format!("{}", value), font_size, Mm(80.0), y_position, &font);
+        current_layer.use_text(unit, font_size, Mm(100.0), y_position, &font);
+        y_position -= Mm(10.0);
+    }
     
     let output_file = match File::create("daily_report.pdf") {
         Ok(file) => file,
