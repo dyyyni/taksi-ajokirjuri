@@ -164,7 +164,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 match get_monthly_summary(&conn, &year_month, &app.car) {
                     Ok(summary) => {
                         crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
-                        app.message = "Report generated!".to_string();
+                        app.message = "Kuukausiraportti valmis!".to_string();
                     }
                     Err(e) => {
                         app.message = format!("Failed to generate report: {}", e);
@@ -174,10 +174,12 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
 
             if ui.button("Luo päiväraportti").clicked() {
                 crate::pdf::generate_daily_summary_pdf(&app);
+                app.message = "Päiväraportti valmis!".to_string();
             }
 
             if ui.button("Tyhjennä kentät").clicked() {
                 clear_ui_entries(app);
+                app.message = "Kentät tyhjennetty!".to_string();
             }
         });
 
