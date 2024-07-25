@@ -1,3 +1,4 @@
+use chrono::Datelike;
 use printpdf::*;
 use std::fs::File;
 use std::io::BufWriter;
@@ -106,6 +107,15 @@ pub fn generate_daily_summary_pdf(app: &MyApp) {
     draw_underline(&current_layer, Mm(15.0), y_position - Mm(1.5), Mm(45.0));
     y_position -= Mm(10.0);
 
+    current_layer.use_text("Päivä", font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text(format!("{:02}.{:02}.{:04}", &app.date.day(), &app.date.month(), &app.date.year()), font_size, Mm(40.0), y_position, &font);
+    y_position -= Mm(7.5);
+    current_layer.use_text("Auto:", font_size, Mm(15.0), y_position, &font);
+    current_layer.use_text(&app.car, font_size, Mm(40.0), y_position, &font);
+    y_position -= Mm(15.0);
+
+    current_layer.use_text("Ajokilometrit", font_h1, Mm(15.0), y_position, &font_bold);
+    y_position -= Mm(15.0);
     let mittarin_loppulukema =
      (app.matkamittarin_aloituslukema.parse::<f64>().unwrap_or(0.0)
      + app.ammattiajo.parse::<f64>().unwrap_or(0.0)
