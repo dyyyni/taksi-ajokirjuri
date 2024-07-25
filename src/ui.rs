@@ -7,6 +7,38 @@ use crate::MyApp;
 use crate::db::{insert_entry, get_entry_by_date_and_car, Entry, get_monthly_summary};
 use crate::config::{CAR1, CAR2, CAR3};
 
+pub fn load_entries(app: &mut MyApp) -> Result<(), Box<dyn std::error::Error>> {
+    let conn = Connection::open("data/data.db")?;
+    if let Ok(Some(entry)) = get_entry_by_date_and_car(&conn, &app.date.to_string(), &app.car) {
+        app.matkamittarin_aloituslukema = entry.matkamittarin_aloituslukema.to_string();
+        app.ammattiajo = entry.ammattiajo.to_string();
+        app.tuottamaton_ajo = entry.tuottamaton_ajo.to_string();
+        app.yksityinen_ajo = entry.yksityinen_ajo.to_string();
+        app.matkamittarin_loppulukema = entry.matkamittarin_loppulukema.to_string();
+        app.käteisajotulot = entry.käteisajotulot.to_string();
+        app.pankkikorttitulot = entry.pankkikorttitulot.to_string();
+        app.kela_suorakorvaus = entry.kela_suorakorvaus.to_string();
+        app.taksikortti = entry.taksikortti.to_string();
+        app.laskutettavat = entry.laskutettavat.to_string();
+    } else {
+        clear_ui_entries(app);
+    }
+    Ok(())
+}
+
+fn clear_ui_entries(app: &mut MyApp) {
+    app.matkamittarin_aloituslukema.clear();
+    app.ammattiajo.clear();
+    app.tuottamaton_ajo.clear();
+    app.yksityinen_ajo.clear();
+    app.matkamittarin_loppulukema.clear();
+    app.käteisajotulot.clear();
+    app.pankkikorttitulot.clear();
+    app.kela_suorakorvaus.clear();
+    app.taksikortti.clear();
+    app.laskutettavat.clear(); 
+} 
+
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Valitse päivämäärä");
@@ -32,20 +64,8 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         ui.add_space(15.0);
 
         if app.date != previous_date || app.car != previous_car {
-            let conn = Connection::open("data/data.db").unwrap();
-            if let Ok(Some(entry)) = get_entry_by_date_and_car(&conn, &app.date.to_string(), &app.car) {
-                app.matkamittarin_aloituslukema = entry.matkamittarin_aloituslukema.to_string();
-                app.ammattiajo = entry.ammattiajo.to_string();
-                app.tuottamaton_ajo = entry.tuottamaton_ajo.to_string();
-                app.yksityinen_ajo = entry.yksityinen_ajo.to_string();
-                app.matkamittarin_loppulukema = entry.matkamittarin_loppulukema.to_string();
-                app.käteisajotulot = entry.käteisajotulot.to_string();
-                app.pankkikorttitulot = entry.pankkikorttitulot.to_string();
-                app.kela_suorakorvaus = entry.kela_suorakorvaus.to_string();
-                app.taksikortti = entry.taksikortti.to_string();
-                app.laskutettavat = entry.laskutettavat.to_string();
-            } else {
-                clear_ui_entries(app);
+            if let Err(e) = load_entries(app) {
+                println!("Error loading entries: {:?}", e);
             }
         }
 
@@ -186,16 +206,3 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         ui.label(&app.message);
     });
 }
-
-fn clear_ui_entries(app: &mut MyApp) {
-    app.matkamittarin_aloituslukema.clear();
-    app.ammattiajo.clear();
-    app.tuottamaton_ajo.clear();
-    app.yksityinen_ajo.clear();
-    app.matkamittarin_loppulukema.clear();
-    app.käteisajotulot.clear();
-    app.pankkikorttitulot.clear();
-    app.kela_suorakorvaus.clear();
-    app.taksikortti.clear();
-    app.laskutettavat.clear(); 
-} 
