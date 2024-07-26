@@ -4,11 +4,10 @@ use rusqlite::{params, Connection, Result};
 pub struct Entry {
     pub date: String,
     pub car: String,
-    pub matkamittarin_aloituslukema: f64,
+    pub matkamittari: f64,
     pub ammattiajo: f64,
     pub tuottamaton_ajo: f64,
     pub yksityinen_ajo: f64,
-    pub matkamittarin_loppulukema: f64,
     pub käteisajotulot: f64,
     pub pankkikorttitulot: f64,
     pub kela_suorakorvaus: f64,
@@ -28,11 +27,10 @@ fn create_table(conn: &Connection) -> Result<()> {
             id INTEGER PRIMARY KEY,
             date TEXT NOT NULL,
             car TEXT NOT NULL,
-            matkamittarin_aloituslukema REAL,
+            matkamittari REAL,
             ammattiajo REAL,
             tuottamaton_ajo REAL,
             yksityinen_ajo REAL,
-            matkamittarin_loppulukema REAL,
             käteisajotulot REAL,
             pankkikorttitulot REAL,
             kela_suorakorvaus REAL,
@@ -49,26 +47,24 @@ pub fn insert_entry(conn: &Connection, entry: &Entry) -> Result<(), rusqlite::Er
         "INSERT INTO entries (
             date,
             car,
-            matkamittarin_aloituslukema,
+            matkamittari,
             ammattiajo,
             tuottamaton_ajo,
             yksityinen_ajo,
-            matkamittarin_loppulukema,
             käteisajotulot,
             pankkikorttitulot,
             kela_suorakorvaus,
             taksikortti,
             laskutettavat
             )
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
         rusqlite::params![
             entry.date,
             entry.car,
-            entry.matkamittarin_aloituslukema,
+            entry.matkamittari,
             entry.ammattiajo,
             entry.tuottamaton_ajo,
             entry.yksityinen_ajo,
-            entry.matkamittarin_loppulukema,
             entry.käteisajotulot,
             entry.pankkikorttitulot,
             entry.kela_suorakorvaus,
@@ -83,11 +79,10 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
     Result<(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> {
     let mut stmt = conn.prepare(
         "SELECT 
-            SUM(matkamittarin_aloituslukema), 
+            matkamittari, 
             SUM(ammattiajo), 
             SUM(tuottamaton_ajo), 
             SUM(yksityinen_ajo), 
-            SUM(matkamittarin_loppulukema),
             SUM(käteisajotulot), 
             SUM(pankkikorttitulot), 
             SUM(kela_suorakorvaus), 
@@ -108,28 +103,26 @@ pub fn get_monthly_summary(conn: &Connection, month: &str, car: &str) ->
             row.get::<_, Option<f64>>(6)?, 
             row.get::<_, Option<f64>>(7)?, 
             row.get::<_, Option<f64>>(8)?, 
-            row.get::<_, Option<f64>>(9)?,
         ))
     })?;
 
-    let mut summary = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    let mut summary = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     for row in rows {
-        let (matkamittarin_aloituslukema, ammattiajo, tuottamaton_ajo,
-            yksityinen_ajo, matkamittarin_loppulukema, käteisajotulot,
+        let (matkamittari, ammattiajo, tuottamaton_ajo,
+            yksityinen_ajo,  käteisajotulot,
             pankkikorttitulot, kela_suorakorvaus,
             taksikortti, laskutettavat):
             (Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>,
-                 Option<f64>, Option<f64>, Option<f64>) = row?;
-        summary.0 += matkamittarin_aloituslukema.unwrap_or(0.0);
+                 Option<f64>, Option<f64>) = row?;
+        summary.0 += matkamittari.unwrap_or(0.0);
         summary.1 += ammattiajo.unwrap_or(0.0);
         summary.2 += tuottamaton_ajo.unwrap_or(0.0);
         summary.3 += yksityinen_ajo.unwrap_or(0.0);
-        summary.4 += matkamittarin_loppulukema.unwrap_or(0.0);
-        summary.5 += käteisajotulot.unwrap_or(0.0);
-        summary.6 += pankkikorttitulot.unwrap_or(0.0);
-        summary.7 += kela_suorakorvaus.unwrap_or(0.0);
-        summary.8 += taksikortti.unwrap_or(0.0);
-        summary.9 += laskutettavat.unwrap_or(0.0);
+        summary.4 += käteisajotulot.unwrap_or(0.0);
+        summary.5 += pankkikorttitulot.unwrap_or(0.0);
+        summary.6 += kela_suorakorvaus.unwrap_or(0.0);
+        summary.7 += taksikortti.unwrap_or(0.0);
+        summary.8 += laskutettavat.unwrap_or(0.0);
     }
     Ok(summary)
 }
@@ -140,11 +133,10 @@ pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Re
         "SELECT
             date,
             car,
-            matkamittarin_aloituslukema,
+            matkamittari,
             ammattiajo,
             tuottamaton_ajo,
             yksityinen_ajo,
-            matkamittarin_loppulukema,
             käteisajotulot,
             pankkikorttitulot,
             kela_suorakorvaus,
@@ -158,16 +150,15 @@ pub fn get_entry_by_date_and_car(conn: &Connection, date: &str, car: &str) -> Re
         Ok(Some(Entry {
             date: row.get(0)?,
             car: row.get(1)?,
-            matkamittarin_aloituslukema: row.get(2)?,
+            matkamittari: row.get(2)?,
             ammattiajo: row.get(3)?,
             tuottamaton_ajo: row.get(4)?,
             yksityinen_ajo: row.get(5)?,
-            matkamittarin_loppulukema: row.get(6)?,
-            käteisajotulot: row.get(7)?,
-            pankkikorttitulot: row.get(8)?,
-            kela_suorakorvaus: row.get(9)?,
-            taksikortti: row.get(10)?,
-            laskutettavat: row.get(11)?,
+            käteisajotulot: row.get(6)?,
+            pankkikorttitulot: row.get(7)?,
+            kela_suorakorvaus: row.get(8)?,
+            taksikortti: row.get(9)?,
+            laskutettavat: row.get(10)?,
         }))
     } else {
         Ok(None)
