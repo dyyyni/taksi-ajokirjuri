@@ -51,15 +51,19 @@ fn calculate_revenue(app: &MyApp) -> String {
      return revenue.to_string();
 }
 
+fn handle_message_timeout(app: &mut MyApp) {
+    if let Some(set_time) = app.message_set_time {
+        if set_time.elapsed() > Duration::from_secs(2) {
+            app.message.clear();
+            app.message_set_time = None;
+        }
+    }
+}
+
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
 
-        if let Some(set_time) = app.message_set_time {
-            if set_time.elapsed() > Duration::from_secs(2) {
-                app.message.clear();
-                app.message_set_time = None;
-            }
-        }
+        handle_message_timeout(app);
 
         ui.heading("Valitse päivämäärä");
 
