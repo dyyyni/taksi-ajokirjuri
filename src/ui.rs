@@ -37,7 +37,18 @@ fn clear_ui_entries(app: &mut MyApp) {
     app.kela_suorakorvaus.clear();
     app.taksikortti.clear();
     app.laskutettavat.clear(); 
-} 
+}
+
+fn calculate_revenue(app: &MyApp) -> String {
+    let revenue =
+     app.käteisajotulot.parse::<f64>().unwrap_or(0.0)
+     + app.pankkikorttitulot.parse::<f64>().unwrap_or(0.0)
+     + app.kela_suorakorvaus.parse::<f64>().unwrap_or(0.0)
+     + app.taksikortti.parse::<f64>().unwrap_or(0.0)
+     + app.laskutettavat.parse::<f64>().unwrap_or(0.0);
+
+     return revenue.to_string();
+}
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
@@ -149,6 +160,12 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                     egui::TextEdit::singleline(&mut app.laskutettavat));
                 ui.label("€");
                 ui.end_row();
+
+                ui.label("Tulot yhteensä:");
+                ui.label(format!("{}", calculate_revenue(&app)));
+                ui.label("€");
+                ui.end_row();
+                
             });
 
         ui.add_space(20.0);
