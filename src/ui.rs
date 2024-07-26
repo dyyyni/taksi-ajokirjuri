@@ -70,27 +70,37 @@ fn display_entries(ui: &mut egui::Ui, app: &mut MyApp) {
             ui.end_row();
 
             ui.label("Mittarin aloituslukema:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.matkamittarin_aloituslukema));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.matkamittarin_aloituslukema));
             ui.label("km");
             ui.end_row();
 
             ui.label("Ammattiajo:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.ammattiajo));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.ammattiajo));
             ui.label("km");
             ui.end_row();
 
             ui.label("Tuottamaton ajo:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.tuottamaton_ajo));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.tuottamaton_ajo));
             ui.label("km");
             ui.end_row();
 
             ui.label("Yksityinen ajo:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.yksityinen_ajo));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.yksityinen_ajo));
             ui.label("km");
             ui.end_row();
 
             ui.label("Mittarin loppulukema:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema));
             ui.label("km");
             ui.end_row();
 
@@ -98,27 +108,37 @@ fn display_entries(ui: &mut egui::Ui, app: &mut MyApp) {
             ui.end_row();
 
             ui.label("Käteisajotulot:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.käteisajotulot));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.käteisajotulot));
             ui.label("€");
             ui.end_row();
 
             ui.label("Pankkikorttitulot:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.pankkikorttitulot));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.pankkikorttitulot));
             ui.label("€");
             ui.end_row();
 
             ui.label("Kela suorakorvaus:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.kela_suorakorvaus));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.kela_suorakorvaus));
             ui.label("€");
             ui.end_row();
 
             ui.label("Taksikortti:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.taksikortti));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.taksikortti));
             ui.label("€");
             ui.end_row();
 
             ui.label("Laskutettavat:");
-            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.laskutettavat));
+            ui.add_sized(
+                [200.0, 20.0],
+                egui::TextEdit::singleline(&mut app.laskutettavat));
             ui.label("€");
             ui.end_row();
 
@@ -200,7 +220,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         ui.add_sized(
             [200.0, 40.0],
             DatePickerButton::new(&mut app.date).id_source("date_picker"));
-
         ui.add_space(15.0);
 
         ui.heading("Valitse auto");
@@ -211,7 +230,6 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                 ui.selectable_value(&mut app.car, CAR2.to_string(), CAR2);
                 ui.selectable_value(&mut app.car, CAR3.to_string(), CAR3);
             });
-
         ui.add_space(15.0);
 
         if app.date != previous_date || app.car != previous_car {
@@ -221,11 +239,8 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
         }
 
         display_entries(ui, app);
-
         ui.add_space(20.0);
-
         display_buttons(ui, app);
-
         ui.label(&app.message);
     });
 }
