@@ -183,8 +183,9 @@ fn display_buttons(ui: &mut egui::Ui, app: &mut MyApp) {
             let year_month = format!("{:04}-{:02}", app.date.year(), app.date.month());
             match get_monthly_summary(&conn, &year_month, &app.car) {
                 Ok(summary) => {
-                    crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
-                    app.message = "Kuukausiraportti valmis!".to_string();
+                    //crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
+                    //app.message = "Kuukausiraportti valmis!".to_string();
+                    app.message = "Rikki hetken aikaa!".to_string();
                     app.message_set_time = Some(Instant::now());
                 }
                 Err(e) => {
@@ -195,8 +196,9 @@ fn display_buttons(ui: &mut egui::Ui, app: &mut MyApp) {
         }
 
         if ui.button("Luo päiväraportti").clicked() {
-            crate::pdf::generate_daily_summary_pdf(&app);
-            app.message = "Päiväraportti valmis!".to_string();
+            //crate::pdf::generate_daily_summary_pdf(&app);
+            //app.message = "Päiväraportti valmis!".to_string();
+            app.message = "Rikki hetken aikaa!".to_string();
             app.message_set_time = Some(Instant::now());
         }
 
