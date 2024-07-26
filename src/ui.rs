@@ -129,13 +129,71 @@ fn display_entries(ui: &mut egui::Ui, app: &mut MyApp) {
         });
 }
 
+fn display_buttons(ui: &mut egui::Ui, app: &mut MyApp) {
+
+    ui.horizontal(|ui| {
+        if ui.button("Tallenna").clicked() {
+            let conn = Connection::open("data/data.db").unwrap();
+            let entry = Entry {
+                date: app.date.to_string(),
+                car: app.car.clone(),
+                matkamittarin_aloituslukema: app.matkamittarin_aloituslukema.parse().unwrap_or(0.0),
+                ammattiajo: app.ammattiajo.parse().unwrap_or(0.0),
+                tuottamaton_ajo: app.tuottamaton_ajo.parse().unwrap_or(0.0),
+                yksityinen_ajo: app.yksityinen_ajo.parse().unwrap_or(0.0),
+                matkamittarin_loppulukema: app.matkamittarin_loppulukema.parse().unwrap_or(0.0),
+                käteisajotulot: app.käteisajotulot.parse().unwrap_or(0.0),
+                pankkikorttitulot: app.pankkikorttitulot.parse().unwrap_or(0.0),
+                kela_suorakorvaus: app.kela_suorakorvaus.parse().unwrap_or(0.0),
+                taksikortti: app.taksikortti.parse().unwrap_or(0.0),
+                laskutettavat: app.laskutettavat.parse().unwrap_or(0.0),
+            };
+
+            if let Err(e) = insert_entry(&conn, &entry) {
+                app.message = format!("Failed to save data: {}", e);
+                app.message_set_time = Some(Instant::now());
+            } else {
+                app.message = "Data saved!".to_string();
+                app.message_set_time = Some(Instant::now());
+            }
+        }
+
+        if ui.button("Luo kuukausiraportti").clicked() {
+            let conn = Connection::open("data/data.db").unwrap();
+            let year_month = format!("{:04}-{:02}", app.date.year(), app.date.month());
+            match get_monthly_summary(&conn, &year_month, &app.car) {
+                Ok(summary) => {
+                    crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
+                    app.message = "Kuukausiraportti valmis!".to_string();
+                    app.message_set_time = Some(Instant::now());
+                }
+                Err(e) => {
+                    app.message = format!("Failed to generate report: {}", e);
+                    app.message_set_time = Some(Instant::now());
+                }
+            }
+        }
+
+        if ui.button("Luo päiväraportti").clicked() {
+            crate::pdf::generate_daily_summary_pdf(&app);
+            app.message = "Päiväraportti valmis!".to_string();
+            app.message_set_time = Some(Instant::now());
+        }
+
+        if ui.button("Tyhjennä kentät").clicked() {
+            clear_ui_entries(app);
+            app.message = "Kentät tyhjennetty!".to_string();
+            app.message_set_time = Some(Instant::now());
+        }
+    });
+}
+
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
 
         handle_message_timeout(app);
 
         ui.heading("Valitse päivämäärä");
-
         let previous_date = app.date;
         let previous_car = app.car.clone();
 
@@ -166,61 +224,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
 
         ui.add_space(20.0);
 
-        ui.horizontal(|ui| {
-            if ui.button("Tallenna").clicked() {
-                let conn = Connection::open("data/data.db").unwrap();
-                let entry = Entry {
-                    date: app.date.to_string(),
-                    car: app.car.clone(),
-                    matkamittarin_aloituslukema: app.matkamittarin_aloituslukema.parse().unwrap_or(0.0),
-                    ammattiajo: app.ammattiajo.parse().unwrap_or(0.0),
-                    tuottamaton_ajo: app.tuottamaton_ajo.parse().unwrap_or(0.0),
-                    yksityinen_ajo: app.yksityinen_ajo.parse().unwrap_or(0.0),
-                    matkamittarin_loppulukema: app.matkamittarin_loppulukema.parse().unwrap_or(0.0),
-                    käteisajotulot: app.käteisajotulot.parse().unwrap_or(0.0),
-                    pankkikorttitulot: app.pankkikorttitulot.parse().unwrap_or(0.0),
-                    kela_suorakorvaus: app.kela_suorakorvaus.parse().unwrap_or(0.0),
-                    taksikortti: app.taksikortti.parse().unwrap_or(0.0),
-                    laskutettavat: app.laskutettavat.parse().unwrap_or(0.0),
-                };
-
-                if let Err(e) = insert_entry(&conn, &entry) {
-                    app.message = format!("Failed to save data: {}", e);
-                    app.message_set_time = Some(Instant::now());
-                } else {
-                    app.message = "Data saved!".to_string();
-                    app.message_set_time = Some(Instant::now());
-                }
-            }
-
-            if ui.button("Luo kuukausiraportti").clicked() {
-                let conn = Connection::open("data/data.db").unwrap();
-                let year_month = format!("{:04}-{:02}", app.date.year(), app.date.month());
-                match get_monthly_summary(&conn, &year_month, &app.car) {
-                    Ok(summary) => {
-                        crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
-                        app.message = "Kuukausiraportti valmis!".to_string();
-                        app.message_set_time = Some(Instant::now());
-                    }
-                    Err(e) => {
-                        app.message = format!("Failed to generate report: {}", e);
-                        app.message_set_time = Some(Instant::now());
-                    }
-                }
-            }
-
-            if ui.button("Luo päiväraportti").clicked() {
-                crate::pdf::generate_daily_summary_pdf(&app);
-                app.message = "Päiväraportti valmis!".to_string();
-                app.message_set_time = Some(Instant::now());
-            }
-
-            if ui.button("Tyhjennä kentät").clicked() {
-                clear_ui_entries(app);
-                app.message = "Kentät tyhjennetty!".to_string();
-                app.message_set_time = Some(Instant::now());
-            }
-        });
+        display_buttons(ui, app);
 
         ui.label(&app.message);
     });
