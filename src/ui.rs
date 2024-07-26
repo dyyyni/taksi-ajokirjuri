@@ -60,6 +60,75 @@ fn handle_message_timeout(app: &mut MyApp) {
     }
 }
 
+fn display_entries(ui: &mut egui::Ui, app: &mut MyApp) {
+    egui::Grid::new("entry_grid")
+        .num_columns(3)
+        .spacing([20.0, 10.0])
+        .striped(true)
+        .show(ui, |ui| {
+            ui.heading("Ajokilometrit");
+            ui.end_row();
+
+            ui.label("Mittarin aloituslukema:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.matkamittarin_aloituslukema));
+            ui.label("km");
+            ui.end_row();
+
+            ui.label("Ammattiajo:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.ammattiajo));
+            ui.label("km");
+            ui.end_row();
+
+            ui.label("Tuottamaton ajo:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.tuottamaton_ajo));
+            ui.label("km");
+            ui.end_row();
+
+            ui.label("Yksityinen ajo:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.yksityinen_ajo));
+            ui.label("km");
+            ui.end_row();
+
+            ui.label("Mittarin loppulukema:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema));
+            ui.label("km");
+            ui.end_row();
+
+            ui.heading("Ajotulojen erittely");
+            ui.end_row();
+
+            ui.label("Käteisajotulot:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.käteisajotulot));
+            ui.label("€");
+            ui.end_row();
+
+            ui.label("Pankkikorttitulot:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.pankkikorttitulot));
+            ui.label("€");
+            ui.end_row();
+
+            ui.label("Kela suorakorvaus:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.kela_suorakorvaus));
+            ui.label("€");
+            ui.end_row();
+
+            ui.label("Taksikortti:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.taksikortti));
+            ui.label("€");
+            ui.end_row();
+
+            ui.label("Laskutettavat:");
+            ui.add_sized([200.0, 20.0], egui::TextEdit::singleline(&mut app.laskutettavat));
+            ui.label("€");
+            ui.end_row();
+
+            ui.label("Tulot yhteensä:");
+            ui.label(format!("{}", calculate_revenue(&app)));
+            ui.label("€");
+            ui.end_row();
+        });
+}
+
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
 
@@ -93,93 +162,7 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             }
         }
 
-        egui::Grid::new("entry_grid")
-            .num_columns(3)
-            .spacing([20.0, 10.0])
-            .striped(true)
-            .show(ui, |ui| {
-                ui.heading("Ajokilometrit");
-                ui.end_row();
-
-                ui.label("Mittarin aloituslukema:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.matkamittarin_aloituslukema));
-                ui.label("km");
-                ui.end_row();
-
-                ui.label("Ammattiajo:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.ammattiajo));
-                ui.label("km");
-                ui.end_row();
-
-                ui.label("Tuottamaton ajo:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.tuottamaton_ajo));
-                ui.label("km");
-                ui.end_row();
-
-                ui.label("Yksityinen ajo:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.yksityinen_ajo));
-                ui.label("km");
-                ui.end_row();
-
-                ui.label("Mittarin loppulukema:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.matkamittarin_loppulukema));
-                ui.label("km");
-                ui.end_row();
-
-                ui.heading("Ajotulojen erittely");
-                ui.end_row();
-
-                ui.label("Käteisajotulot:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.käteisajotulot));
-                ui.label("€");
-                ui.end_row();
-
-                ui.label("Pankkikorttitulot:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.pankkikorttitulot));
-                ui.label("€");
-                ui.end_row();
-
-                ui.label("Kela suorakorvaus:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.kela_suorakorvaus));
-                ui.label("€");
-                ui.end_row();
-
-                ui.label("Taksikortti:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.taksikortti));
-                ui.label("€");
-                ui.end_row();
-
-                ui.label("Laskutettavat:");
-                ui.add_sized(
-                    [200.0, 20.0],
-                    egui::TextEdit::singleline(&mut app.laskutettavat));
-                ui.label("€");
-                ui.end_row();
-
-                ui.label("Tulot yhteensä:");
-                ui.label(format!("{}", calculate_revenue(&app)));
-                ui.label("€");
-                ui.end_row();
-                
-            });
+        display_entries(ui, app);
 
         ui.add_space(20.0);
 
