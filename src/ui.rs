@@ -2,6 +2,7 @@ use eframe::egui;
 use egui_extras::DatePickerButton;
 use rusqlite::Connection;
 use chrono::Datelike;
+use std::time::{Duration, Instant};
 
 use crate::MyApp;
 use crate::db::{insert_entry, get_entry_by_date_and_car, Entry, get_monthly_summary};
@@ -52,6 +53,14 @@ fn calculate_revenue(app: &MyApp) -> String {
 
 pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
+
+        if let Some(set_time) = app.message_set_time {
+            if set_time.elapsed() > Duration::from_secs(2) {
+                app.message.clear();
+                app.message_set_time = None;
+            }
+        }
+
         ui.heading("Valitse päivämäärä");
 
         let previous_date = app.date;
@@ -190,8 +199,10 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
 
                 if let Err(e) = insert_entry(&conn, &entry) {
                     app.message = format!("Failed to save data: {}", e);
+                    app.message_set_time = Some(Instant::now());
                 } else {
                     app.message = "Data saved!".to_string();
+                    app.message_set_time = Some(Instant::now());
                 }
             }
 
@@ -202,9 +213,11 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
                     Ok(summary) => {
                         crate::pdf::generate_monthly_summary_pdf(summary, &year_month, &app.car);
                         app.message = "Kuukausiraportti valmis!".to_string();
+                        app.message_set_time = Some(Instant::now());
                     }
                     Err(e) => {
                         app.message = format!("Failed to generate report: {}", e);
+                        app.message_set_time = Some(Instant::now());
                     }
                 }
             }
@@ -212,11 +225,13 @@ pub fn build_ui(app: &mut MyApp, ctx: &egui::Context) {
             if ui.button("Luo päiväraportti").clicked() {
                 crate::pdf::generate_daily_summary_pdf(&app);
                 app.message = "Päiväraportti valmis!".to_string();
+                app.message_set_time = Some(Instant::now());
             }
 
             if ui.button("Tyhjennä kentät").clicked() {
                 clear_ui_entries(app);
                 app.message = "Kentät tyhjennetty!".to_string();
+                app.message_set_time = Some(Instant::now());
             }
         });
 

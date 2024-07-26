@@ -8,6 +8,7 @@ use eframe::egui;
 use eframe::{self, NativeOptions};
 use chrono::{NaiveDate, Local};
 use std::error::Error;
+use std::time::Instant;
 
 #[derive(Default)]
 struct MyApp {
@@ -24,6 +25,7 @@ struct MyApp {
     taksikortti: String,
     laskutettavat: String,
     message: String,
+    message_set_time: Option<Instant>,
 }
 
 impl MyApp {
